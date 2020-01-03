@@ -12,6 +12,7 @@ import vuetify from './plugins/vuetify';
 
 import '@mdi/font/css/materialdesignicons.css';
 import "@/styles/main.scss";
+import auth from './lib/auth'
 
 Vue.config.productionTip = false
 Vue.prototype.$request = request;
@@ -35,6 +36,12 @@ requireComponent.keys().forEach(fileName => {
         componentConfig.default || componentConfig
     )
 })
+
+// Session token
+if (auth.isLogged()) {
+    const token = localStorage.getItem("user-token");
+    request.updateSessionToken(token);
+}
 
 // New instance of Vue with Router and Store
 new Vue({

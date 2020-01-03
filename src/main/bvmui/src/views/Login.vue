@@ -1,57 +1,63 @@
 <template>
-    <v-form>
-            <v-text-field
-                v-model="username"
-                label="Username">
-            </v-text-field>
-            <v-text-field
-                v-model="password"
-                label="Password"
-                tile
-                flat
-                hide-details>
-            </v-text-field>
-            <v-btn
-                depressed
-                large
-                tile
-                class="mt-1"
-                color="blue lighten-1 white--text"
-                @click="performLogin">
-                Login
-            </v-btn>
-        </v-form>
+    <v-card width="400" class="mx-auto mt-5">
+        <v-card-title primary-title>
+              <h4>Login</h4>
+            </v-card-title>
+        <v-card-text>
+            <v-form>
+                <v-text-field
+                    v-model="username"
+                    label="Username"
+                    color="blue lighten-1 white--text"
+                    prepend-icon="mdi-account-circle"
+                />
+                <v-text-field
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    label="Password"
+                    color="blue lighten-1 white--text"
+                    prepend-icon="mdi-lock"
+                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append="showPassword = !showPassword"
+                />
+            </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-btn color="blue lighten-1 white--text"
+                @click="performLogin">Login</v-btn>
+        </v-card-actions>
+    </v-card>
 </template>
 <script>
+import auth from "../lib/auth";
 export default {
-    data: function() {
+    data() {
         return {
-            username: 'admin',
-            password: 'admin'
+            username: "admin",
+            password: "admin",
+            showPassword: false
         };
     },
-    methods: {        
-       performLogin: function() {
-        let url = "api/auth/login?username="+this.username+"&password="+this.password;
-        this.$request.get(url,
-            res => {
-                if (res.ok) {
-                   this.$store.commit('loggedIn');
-                   this.$router.push({
-                                    name: "bookies"
-                                });                                                   
-                } else {
-                    this.password = "";
-                    alert('bad username or password');
+    methods: {
+        performLogin() {
+            this.$request.post("api/auth/login",
+                {username: this.username, password: this.password},
+                res => {
+                    if (res.ok) {
+                        let token = res.token;
+                        auth.createSession(token);
+                        this.$router.push({ name: "bookies" });
+                    } else {
+                        this.password = "";
+                        alert("bad username or password");
+                    }
+                },
+                error => {
+                    this.$router.push({ name: "bookies" });
                 }
-            },
-            error => {
-                this.$router.push({
-                                    name: "bookies"
-                                });
-                            }
-                    );
-                }
+            );
+        }
     }
 };
 </script>

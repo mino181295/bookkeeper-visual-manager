@@ -24,12 +24,6 @@ export default {
         }
     },
     created() {
-        if (!this.$store.state.logged) {
-            this.$router.push({
-                name: "login"
-            });
-            return;
-        }
         this.$request.get(
             "api/bookie/all",
             bookies => {
